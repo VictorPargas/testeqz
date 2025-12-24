@@ -1,25 +1,23 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Teste QZ Tray</title>
-
-    <!-- QZ Tray lib -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
-
-    <link rel="stylesheet" href="style.css" />
+    <title>Teste QZ Trayffff</title>
   </head>
   <body>
-    <div class="container">
-      <h1>Teste QZ Tray Novo Teste46ddfdgf2</h1>
-
+    <div>
+      <p id="status">Desconectado</p>
       <button id="connectBtn">Conectar QZ Tray</button>
-      <button id="printBtn">Imprimir Etiqueta</button>
-
-      <p id="status">Status: Desconectado</p>
+      <button id="printBtn" disabled>Imprimir Etiqueta</button>
     </div>
 
+    <!-- QZ Tray -->
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
+
+    <!-- CRIPTO (OBRIGATÓRIO PARA ASSINAR) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+
+    <!-- SEU SCRIPT -->
     <script src="script.js"></script>
   </body>
 </html>
