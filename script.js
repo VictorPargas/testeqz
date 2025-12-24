@@ -13,7 +13,7 @@ connectBtn.addEventListener("click", async () => {
 
     await qz.websocket.connect({
       host: "10.0.0.99",
-      usingSecure: true, // WSS obrigatório para HTTPS
+      usingSecure: false, // WSS obrigatório para HTTPS
       port: {
         secure: [8181],
       },
