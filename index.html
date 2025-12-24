@@ -2,7 +2,7 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Impressão de Etiquetas - QZ Tray</title>
+    <title>Impressão PPLA - QZ Tray</title>
 
     <style>
       body {
@@ -13,7 +13,7 @@
 
       .card {
         background: #fff;
-        max-width: 420px;
+        max-width: 450px;
         margin: auto;
         padding: 24px;
         border-radius: 8px;
@@ -21,8 +21,8 @@
       }
 
       h2 {
-        margin-top: 0;
         text-align: center;
+        margin-top: 0;
       }
 
       label {
@@ -47,31 +47,31 @@
       }
 
       #status {
-        margin-bottom: 10px;
-        font-weight: bold;
         text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
       }
     </style>
   </head>
   <body>
     <div class="card">
-      <h2>Impressão de Etiqueta (PPLA)</h2>
+      <h2>Etiqueta PPLA</h2>
 
       <p id="status">🔴 Desconectado</p>
 
       <button id="connectBtn">Conectar QZ Tray</button>
 
-      <label>Descrição do Produto</label>
-      <input id="descricao" placeholder="Ex: TENIS NIKE" />
+      <label>Descrição</label>
+      <input id="descricao" placeholder="TENIS NIKE" />
 
       <label>Código</label>
-      <input id="codigo" placeholder="Ex: 123456" />
+      <input id="codigo" placeholder="123456" />
+
+      <label>Tamanho</label>
+      <input id="tamanho" placeholder="GG" />
 
       <label>Preço</label>
-      <input id="preco" placeholder="Ex: 150,50" />
-
-      <label>Data</label>
-      <input id="data" placeholder="Ex: 08/08/2025" />
+      <input id="preco" placeholder="150,50" />
 
       <button id="printBtn" disabled>Imprimir Etiqueta</button>
     </div>
@@ -83,98 +83,104 @@
       const statusEl = document.getElementById("status");
       const connectBtn = document.getElementById("connectBtn");
       const printBtn = document.getElementById("printBtn");
+
       const descricaoEl = document.getElementById("descricao");
       const codigoEl = document.getElementById("codigo");
+      const tamanhoEl = document.getElementById("tamanho");
+      const precoEl = document.getElementById("preco");
 
       /* =========================
-       CERTIFICATE (DIRECT MODE)
-       ========================= */
-      qz.security.setCertificatePromise(function (resolve, reject) {
-        resolve(
-          "-----BEGIN CERTIFICATE-----\n" +
-            "MIIECzCCAvOgAwIBAgIGAZtQmWp1MA0GCSqGSIb3DQEBCwUAMIGi...\n" +
-            "-----END CERTIFICATE-----\n"
-        );
+     CERTIFICATE (COMPLETO)
+     ========================= */
+      qz.security.setCertificatePromise(function (resolve) {
+        resolve(`-----BEGIN CERTIFICATE-----
+MIIECzCCAvOgAwIBAgIGAZtQmWp1MA0GCSqGSIb3DQEBCwUAMIGiMQswCQYDVQQG
+EwJVUzELMAkGA1UECAwCTlkxEjAQBgNVBAcMCUNhbmFzdG90YTEbMBkGA1UECgwS
+UVogSW5kdXN0cmllcywgTExDMRswGQYDVQQLDBJRWiBJbmR1c3RyaWVzLCBMTEMx
+HDAaBgkqhkiG9w0BCQEWDXN1cHBvcnRAcXouaW8xGjAYBgNVBAMMEVFaIFRyYXkg
+RGVtbyBDZXJ0MB4XDTI1MTIyMzEzNDMxMFoXDTQ1MTIyMzEzNDMxMFowgaIxCzAJ
+BgNVBAYTAlVTMQswCQYDVQQIDAJOWTESMBAGA1UEBwwJQ2FuYXN0b3RhMRswGQYD
+VQQKDBJRWiBJbmR1c3RyaWVzLCBMTEMxGzAZBgNVBAsMElFaIEluZHVzdHJpZXMs
+IExMQzEcMBoGCSqGSIb3DQEJARYNc3VwcG9ydEBxei5pbzEaMBgGA1UEAwwRUVog
+VHJheSBEZW1vIENlcnQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCf
+AaJdlLxlGgxJWPVcoCK1DQdhk2ksusmDRDgvglqdteFgs2gqmf5527FdiPR5Z9XH
+wyxa4NdAj1iau7OCMJhICgJzm30EqEqPgQyMDOAfbXHneER3yBXx1Z0R2qSz+J9R
+D+KgaPqi6u6uQuXTyuUh5wJtYZO0+If6mJSjYH6Vj7e2zSrA67js7UALAqLU7mkI
+YyOfu9IansNoQj3lRmqSwTptvYjbzd+Mt8CrmBMEeekLkVMvZTAuDcRTzD3GfvUc
+6VqSrpDsJSVV0x3tglq5MUWNxG4I6cGNhWJlkhyw6S8JRkqymMOD3hMxfNLaBCAP
+g6KzMUNOMxrSgRawXLIJAgMBAAGjRTBDMBIGA1UdEwEB/wQIMAYBAf8CAQEwDgYD
+VR0PAQH/BAQDAgEGMB0GA1UdDgQWBBR4DRQyE1WqL7H7i9UeF3hJ8DVL2jANBgkq
+hkiG9w0BAQsFAAOCAQEAcm2KuZHwuPjMmLxWonVeuPTUeqc8aYy35HuzikytRYNG
+TEmIYq7cMst8866jFJHKmfPq2Z5du5zAamlUrYkcafQwqyqqLLlcUTvuiwQ7HUFW
+FF/zeprG+xMMyVQRimalWN1Y3ObSGlfeWps1Jc+5AkrB9zUkw/tMbURhIIJiSvNK
+zLiB9VKFVCvDJl+y8ECDOIhjWRC97b9FjNKcVlVFHz3C0IInMz/NAp06zokKgkN1
+SBDfK47MUCw/9Ol3ZQyuvLikWsV9vSWs6FJgIRoFuiVQx3taIBKqPHiZgTH3KMrH
+vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
+-----END CERTIFICATE-----`);
       });
 
       /* =========================
-       SIGNATURE (DIRECT / UNSIGNED)
-       ========================= */
+     SIGNATURE (DIRECT MODE)
+     ========================= */
       qz.security.setSignatureAlgorithm("SHA512");
-      qz.security.setSignaturePromise(function (toSign) {
-        return function (resolve, reject) {
-          resolve();
-        };
-      });
+      qz.security.setSignaturePromise(() => (resolve) => resolve());
 
       /* =========================
-       CONNECT
-       ========================= */
-      connectBtn.addEventListener("click", async () => {
+     CONNECT
+     ========================= */
+      connectBtn.onclick = async () => {
         try {
           statusEl.innerText = "🟡 Conectando...";
-
           await qz.websocket.connect({
             usingSecure: true,
             port: { secure: [8181] },
           });
-
-          const version = await qz.api.getVersion();
-          statusEl.innerText = `🟢 Conectado (${version})`;
+          statusEl.innerText = "🟢 Conectado ao QZ Tray";
           printBtn.disabled = false;
-        } catch (err) {
+        } catch (e) {
           statusEl.innerText = "🔴 Erro ao conectar";
-          console.error(err);
+          console.error(e);
         }
-      });
+      };
 
       /* =========================
-       PRINT (EPL – ARGOX)
-       ========================= */
-      printBtn.addEventListener("click", async () => {
-        try {
-          const descricao = descricaoEl.value.trim();
-          const codigo = codigoEl.value.trim();
-          const preco = precoEl.value.trim();
-          const data = dataEl.value.trim();
+     PRINT (PPLA RAW)
+     ========================= */
+      printBtn.onclick = async () => {
+        const desc = descricaoEl.value.trim();
+        const cod = codigoEl.value.trim();
+        const tam = tamanhoEl.value.trim();
+        const val = precoEl.value.trim();
 
-          if (!descricao || !codigo || !preco || !data) {
-            alert("Preencha todos os campos");
-            return;
-          }
-
-          const printer = await qz.printers.find("Argox");
-
-          const config = qz.configs.create(printer, {
-            forceRaw: true,
-            spool: false,
-          });
-
-          const ppla =
-            "\x02n\n" +
-            "\x02M0739\n" +
-            "\x02O0220\n" +
-            "\x02V0\n" +
-            "\x02f220\n" +
-            "\x01D\n" +
-            "\x02L\n" +
-            "D11\n" +
-            "A2\n" +
-            `171100002130050${descricao}\n` +
-            `1711000012600582${codigo}\n` +
-            `171100000080010R$\n` +
-            `171100000080088${preco}\n` +
-            `471100001020034${data}\n` +
-            "Q0001\n" +
-            "E\n";
-
-          await qz.print(config, [ppla]);
-          statusEl.innerText = "✅ Etiqueta impressa!";
-        } catch (err) {
-          statusEl.innerText = "❌ Erro ao imprimir";
-          console.error(err);
+        if (!desc || !cod) {
+          alert("Preencha descrição e código");
+          return;
         }
-      });
+
+        const printer = await qz.printers.find("Argox");
+        const config = qz.configs.create(printer, { forceRaw: true });
+
+        const raw = `
+n
+M0739
+O0220
+V0
+f220
+D
+L
+171100002130050${desc}
+1g63032014400532${cod}
+171100002450010TAM:
+171100002430040${tam}
+171100000080010R$
+171100000080088${val}
+Q0001
+E
+`;
+
+        await qz.print(config, [raw]);
+        statusEl.innerText = "✅ Etiqueta impressa!";
+      };
     </script>
   </body>
 </html>
