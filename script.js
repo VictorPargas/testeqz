@@ -4,54 +4,101 @@ const printBtn = document.getElementById("printBtn");
 
 /**
  * CONFIGURAÇÃO DE SEGURANÇA
- * (para teste apenas – NÃO usar assim em produção)
+ * Para produção, você precisará gerar certificados reais
+ * Veja: https://qz.io/wiki/using-digital-certificates
  */
-qz.security.setCertificatePromise(() =>
-  Promise.resolve(`-----BEGIN CERTIFICATE-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsFakeCertOnlyForTest
------END CERTIFICATE-----`)
-);
-
-qz.security.setSignaturePromise((data) => Promise.resolve("assinatura_fake"));
+qz.security.setCertificatePromise(() => Promise.resolve(null));
+qz.security.setSignaturePromise(() => Promise.resolve(null));
 
 /**
  * CONECTAR AO QZ TRAY
  */
 connectBtn.addEventListener("click", async () => {
   try {
+    statusEl.innerText = "Status: Conectando...";
+
     await qz.websocket.connect({
-      host: "localhost",
-      port: 8181,
-      protocol: "wss",
+      usingSecure: false, // Use false para conexões locais sem SSL
+      port: {
+        insecure: [8181, 8182, 8283, 8384, 8485],
+      },
     });
 
-    statusEl.innerText = "Status: Conectado ao QZ Tray";
+    statusEl.innerText = "Status: Conectado ao QZ Tray ✓";
     printBtn.disabled = false;
+
+    // Listar impressoras disponíveis (útil para debug)
+    const printers = await qz.printers.find();
+    console.log("Impressoras disponíveis:", printers);
   } catch (err) {
     statusEl.innerText = "Erro: QZ Tray não encontrado";
-    console.error(err);
+    console.error("Erro de conexão:", err);
   }
 });
 
 /**
- * IMPRIMIR ETIQUETA (ZPL)
+ * IMPRIMIR ETIQUETA ZPL NA ARGOX
  */
 printBtn.addEventListener("click", async () => {
   try {
-    const printer = await qz.printers.getDefault();
-    const config = qz.configs.create(printer);
+    statusEl.innerText = "Status: Procurando impressora Argox...";
 
-    const data = [
-      "^XA",
-      "^FO50,50^A0N,40,40^FDTeste QZ Tray^FS",
-      "^FO50,100^FD123456^FS",
-      "^XZ",
+    // Buscar impressora Argox
+    const printerName = await qz.printers.find("Argox OS-214 plus series PPLA");
+
+    if (!printerName) {
+      statusEl.innerText = "Erro: Impressora Argox não encontrada";
+      console.error("Impressoras disponíveis:", await qz.printers.find());
+      return;
+    }
+
+    console.log("Impressora encontrada:", printerName);
+    statusEl.innerText = `Status: Imprimindo em ${printerName}...`;
+
+    // Configurar impressora
+    const config = qz.configs.create(printerName, {
+      encoding: "UTF-8",
+      scaleContent: false,
+      rasterize: false,
+      forceRaw: true, // Importante para comandos RAW/ZPL
+    });
+
+    // Comando ZPL para etiqueta
+    const zplData = [
+      {
+        type: "raw",
+        format: "command",
+        flavor: "plain",
+        data: [
+          "^XA", // Início do comando ZPL
+          "^PW760", // Largura da etiqueta (760 dots)
+          "^LL120", // Altura da etiqueta (120 dots)
+          "^LH0,0", // Home position
+          "^CF0,28", // Define fonte padrão
+          "^FO20,30", // Campo na posição X=20, Y=30
+          "^FDTENIS NIKE^FS", // Texto: TENIS NIKE
+          "^FO20,65", // Campo na posição X=20, Y=65
+          "^FD123456^FS", // Texto: 123456
+          "^XZ", // Fim do comando ZPL
+        ].join("\n"),
+      },
     ];
 
-    await qz.print(config, data);
-    statusEl.innerText = "Etiqueta enviada para impressão";
+    // Enviar para impressão
+    await qz.print(config, zplData);
+
+    statusEl.innerText = "Status: Etiqueta enviada com sucesso ✓";
   } catch (err) {
-    statusEl.innerText = "Erro ao imprimir";
-    console.error(err);
+    statusEl.innerText = "Erro ao imprimir: " + err.message;
+    console.error("Erro detalhado:", err);
+  }
+});
+
+/**
+ * DESCONECTAR (opcional)
+ */
+window.addEventListener("beforeunload", async () => {
+  if (qz.websocket.isActive()) {
+    await qz.websocket.disconnect();
   }
 });
