@@ -4,9 +4,9 @@ const printBtn = document.getElementById("printBtn");
 
 printBtn.disabled = true;
 
-// Segurança simples (APENAS para HTTP)
-qz.security.setCertificatePromise(() => Promise.resolve(null));
-qz.security.setSignaturePromise(() => Promise.resolve(null));
+// 🔥 NÃO retorne null
+qz.security.setCertificatePromise(() => Promise.resolve());
+qz.security.setSignaturePromise(() => Promise.resolve());
 
 // CONECTAR
 connectBtn.addEventListener("click", async () => {
@@ -15,21 +15,15 @@ connectBtn.addEventListener("click", async () => {
 
     await qz.websocket.connect({
       host: "10.0.0.99",
-      usingSecure: false, // ⬅️ HTTP / WS
-      port: {
-        insecure: [8182],
-      },
+      usingSecure: false,
+      port: { insecure: [8182] },
     });
 
-    // ⬅️ evita race condition do QZ Tray
     await new Promise((r) => setTimeout(r, 300));
 
     const version = await qz.api.getVersion();
     statusEl.innerText = `✅ Conectado ao QZ Tray ${version}`;
     printBtn.disabled = false;
-
-    const printers = await qz.printers.find();
-    console.log("Impressoras:", printers);
   } catch (err) {
     statusEl.innerText = `❌ Erro: ${err.message}`;
     console.error(err);
@@ -39,14 +33,10 @@ connectBtn.addEventListener("click", async () => {
 // IMPRIMIR
 printBtn.addEventListener("click", async () => {
   try {
-    statusEl.innerText = "Procurando impressora Argox...";
-
-    const printerName = await qz.printers.find("Argox OS-214 plus series PPLA");
+    const printerName = await qz.printers.find("Argox");
 
     if (!printerName) {
-      const all = await qz.printers.find();
       statusEl.innerText = "❌ Argox não encontrada";
-      console.log("Impressoras disponíveis:", all);
       return;
     }
 
@@ -54,19 +44,18 @@ printBtn.addEventListener("click", async () => {
 
     const config = qz.configs.create(printerName, {
       forceRaw: true,
-      encoding: "UTF-8",
     });
 
+    // ✅ EPL FUNCIONAL PARA ARGOX
     const data = [
-      {
-        type: "raw",
-        format: "command",
-        data: "^XA^PW760^LL120^FO20,30^A0N,28^FDTENIS NIKE^FS^FO20,65^A0N,22^FD123456^FS^XZ",
-      },
+      "N",
+      'A50,30,0,3,1,1,N,"TENIS NIKE"',
+      'A50,70,0,2,1,1,N,"123456"',
+      "P1",
     ];
 
     await qz.print(config, data);
-    statusEl.innerText = "✅ Etiqueta enviada!";
+    statusEl.innerText = "✅ Etiqueta impressa!";
   } catch (err) {
     statusEl.innerText = `❌ Erro: ${err.message}`;
     console.error(err);
