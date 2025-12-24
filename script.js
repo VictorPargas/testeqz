@@ -13,7 +13,7 @@ connectBtn.addEventListener("click", async () => {
 
     await qz.websocket.connect({
       host: "10.0.0.99",
-      usingSecure: false, // WSS obrigatório para HTTPS
+      usingSecure: true, // WSS obrigatório para HTTPS
       port: {
         secure: [8181],
       },
@@ -36,7 +36,7 @@ printBtn.addEventListener("click", async () => {
   try {
     statusEl.innerText = "Procurando impressora Argox...";
 
-    const printerName = await qz.printers.find("Argox");
+    const printerName = await qz.printers.find("Argox OS-214 plus series PPLA");
 
     if (!printerName) {
       const all = await qz.printers.find();
