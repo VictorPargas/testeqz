@@ -56,9 +56,9 @@
        ========================= */
       qz.security.setSignatureAlgorithm("SHA512");
       qz.security.setSignaturePromise(function (toSign) {
-        return new Promise(function (resolve, reject) {
-          resolve(); // EXATAMENTE como na documentação
-        });
+        return function (resolve, reject) {
+          resolve(); // DIRECT MODE — sem assinatura
+        };
       });
 
       /* =========================
