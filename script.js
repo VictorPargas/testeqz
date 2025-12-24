@@ -2,7 +2,9 @@ const statusEl = document.getElementById("status");
 const connectBtn = document.getElementById("connectBtn");
 const printBtn = document.getElementById("printBtn");
 
-// Configuração de segurança simples
+printBtn.disabled = true;
+
+// Segurança simples (APENAS para HTTP)
 qz.security.setCertificatePromise(() => Promise.resolve(null));
 qz.security.setSignaturePromise(() => Promise.resolve(null));
 
@@ -13,11 +15,14 @@ connectBtn.addEventListener("click", async () => {
 
     await qz.websocket.connect({
       host: "10.0.0.99",
-      usingSecure: true, // WSS obrigatório para HTTPS
+      usingSecure: false, // ⬅️ HTTP / WS
       port: {
-        secure: [8181],
+        insecure: [8182],
       },
     });
+
+    // ⬅️ evita race condition do QZ Tray
+    await new Promise((r) => setTimeout(r, 300));
 
     const version = await qz.api.getVersion();
     statusEl.innerText = `✅ Conectado ao QZ Tray ${version}`;
@@ -48,20 +53,19 @@ printBtn.addEventListener("click", async () => {
     statusEl.innerText = `Imprimindo em ${printerName}...`;
 
     const config = qz.configs.create(printerName, {
-      encoding: "UTF-8",
       forceRaw: true,
+      encoding: "UTF-8",
     });
 
-    const zpl = [
+    const data = [
       {
         type: "raw",
         format: "command",
-        flavor: "plain",
         data: "^XA^PW760^LL120^FO20,30^A0N,28^FDTENIS NIKE^FS^FO20,65^A0N,22^FD123456^FS^XZ",
       },
     ];
 
-    await qz.print(config, zpl);
+    await qz.print(config, data);
     statusEl.innerText = "✅ Etiqueta enviada!";
   } catch (err) {
     statusEl.innerText = `❌ Erro: ${err.message}`;
@@ -69,9 +73,9 @@ printBtn.addEventListener("click", async () => {
   }
 });
 
-// Desconectar ao fechar
-window.addEventListener("beforeunload", async () => {
+// DESCONECTAR
+window.addEventListener("beforeunload", () => {
   if (qz.websocket.isActive()) {
-    await qz.websocket.disconnect();
+    qz.websocket.disconnect();
   }
 });
