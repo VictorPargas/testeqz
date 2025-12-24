@@ -55,7 +55,7 @@
   </head>
   <body>
     <div class="card">
-      <h2>Impressão de Etiqueta</h2>
+      <h2>Impressão de Etiqueta (PPLA)</h2>
 
       <p id="status">🔴 Desconectado</p>
 
@@ -66,6 +66,12 @@
 
       <label>Código</label>
       <input id="codigo" placeholder="Ex: 123456" />
+
+      <label>Preço</label>
+      <input id="preco" placeholder="Ex: 150,50" />
+
+      <label>Data</label>
+      <input id="data" placeholder="Ex: 08/08/2025" />
 
       <button id="printBtn" disabled>Imprimir Etiqueta</button>
     </div>
@@ -129,9 +135,11 @@
         try {
           const descricao = descricaoEl.value.trim();
           const codigo = codigoEl.value.trim();
+          const preco = precoEl.value.trim();
+          const data = dataEl.value.trim();
 
-          if (!descricao || !codigo) {
-            alert("Preencha descrição e código");
+          if (!descricao || !codigo || !preco || !data) {
+            alert("Preencha todos os campos");
             return;
           }
 
@@ -139,17 +147,28 @@
 
           const config = qz.configs.create(printer, {
             forceRaw: true,
+            spool: false,
           });
 
-          // EPL dinâmico
-          const data = [
-            "N",
-            `A50,30,0,3,1,1,N,"${descricao}"`,
-            `A50,70,0,2,1,1,N,"${codigo}"`,
-            "P1",
-          ];
+          const ppla =
+            "\x02n\n" +
+            "\x02M0739\n" +
+            "\x02O0220\n" +
+            "\x02V0\n" +
+            "\x02f220\n" +
+            "\x01D\n" +
+            "\x02L\n" +
+            "D11\n" +
+            "A2\n" +
+            `171100002130050${descricao}\n` +
+            `1711000012600582${codigo}\n` +
+            `171100000080010R$\n` +
+            `171100000080088${preco}\n` +
+            `471100001020034${data}\n` +
+            "Q0001\n" +
+            "E\n";
 
-          await qz.print(config, data);
+          await qz.print(config, [ppla]);
           statusEl.innerText = "✅ Etiqueta impressa!";
         } catch (err) {
           statusEl.innerText = "❌ Erro ao imprimir";
