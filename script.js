@@ -4,35 +4,55 @@ const printBtn = document.getElementById("printBtn");
 
 /**
  * CONFIGURAÇÃO DE SEGURANÇA
- * Para produção, você precisará gerar certificados reais
- * Veja: https://qz.io/wiki/using-digital-certificates
+ * Para WSS, você precisa aceitar o certificado auto-assinado do QZ Tray
  */
-qz.security.setCertificatePromise(() => Promise.resolve(null));
+qz.security.setCertificatePromise(() => {
+  return fetch("https://10.0.0.99:8181/download/certificate")
+    .then((response) => response.text())
+    .catch((err) => {
+      console.warn("Falha ao buscar certificado, usando null:", err);
+      return null;
+    });
+});
+
 qz.security.setSignaturePromise(() => Promise.resolve(null));
 
 /**
- * CONECTAR AO QZ TRAY
+ * CONECTAR AO QZ TRAY no IP 10.0.0.99
  */
 connectBtn.addEventListener("click", async () => {
   try {
-    statusEl.innerText = "Status: Conectando...";
+    statusEl.innerText = "Status: Conectando ao QZ Tray...";
 
     await qz.websocket.connect({
-      usingSecure: false, // Use false para conexões locais sem SSL
+      host: "10.0.0.99", // IP onde o QZ Tray está rodando
+      usingSecure: true, // Usar protocolo seguro (WSS)
       port: {
-        insecure: [8181, 8182, 8283, 8384, 8485],
+        secure: [8181], // Porta segura
       },
+      retries: 3, // Tentar 3 vezes
+      delay: 1, // Aguardar 1 segundo entre tentativas
     });
 
-    statusEl.innerText = "Status: Conectado ao QZ Tray ✓";
+    const version = await qz.api.getVersion();
+    statusEl.innerText = `Status: Conectado ao QZ Tray ${version} ✓`;
     printBtn.disabled = false;
 
-    // Listar impressoras disponíveis (útil para debug)
+    // Listar impressoras disponíveis
     const printers = await qz.printers.find();
     console.log("Impressoras disponíveis:", printers);
   } catch (err) {
-    statusEl.innerText = "Erro: QZ Tray não encontrado";
+    statusEl.innerText = "Erro: Não foi possível conectar ao QZ Tray";
     console.error("Erro de conexão:", err);
+
+    // Instruções para o usuário
+    alert(
+      "Não foi possível conectar ao QZ Tray.\n\n" +
+        "Passos para resolver:\n" +
+        "1. Acesse: https://10.0.0.99:8181/\n" +
+        "2. Aceite o certificado de segurança no navegador\n" +
+        "3. Tente conectar novamente"
+    );
   }
 });
 
@@ -44,11 +64,16 @@ printBtn.addEventListener("click", async () => {
     statusEl.innerText = "Status: Procurando impressora Argox...";
 
     // Buscar impressora Argox
-    const printerName = await qz.printers.find("Argox OS-214 plus series PPLA");
+    const printerName = await qz.printers.find("Argox");
 
     if (!printerName) {
       statusEl.innerText = "Erro: Impressora Argox não encontrada";
-      console.error("Impressoras disponíveis:", await qz.printers.find());
+      const allPrinters = await qz.printers.find();
+      console.error("Impressoras disponíveis:", allPrinters);
+      alert(
+        "Impressora Argox não encontrada.\nImpressoras disponíveis:\n" +
+          allPrinters.join("\n")
+      );
       return;
     }
 
@@ -60,7 +85,7 @@ printBtn.addEventListener("click", async () => {
       encoding: "UTF-8",
       scaleContent: false,
       rasterize: false,
-      forceRaw: true, // Importante para comandos RAW/ZPL
+      forceRaw: true,
     });
 
     // Comando ZPL para etiqueta
@@ -70,23 +95,21 @@ printBtn.addEventListener("click", async () => {
         format: "command",
         flavor: "plain",
         data: [
-          "^XA", // Início do comando ZPL
-          "^PW760", // Largura da etiqueta (760 dots)
-          "^LL120", // Altura da etiqueta (120 dots)
-          "^LH0,0", // Home position
-          "^CF0,28", // Define fonte padrão
-          "^FO20,30", // Campo na posição X=20, Y=30
-          "^FDTENIS NIKE^FS", // Texto: TENIS NIKE
-          "^FO20,65", // Campo na posição X=20, Y=65
-          "^FD123456^FS", // Texto: 123456
-          "^XZ", // Fim do comando ZPL
+          "^XA",
+          "^PW760",
+          "^LL120",
+          "^LH0,0",
+          "^CF0,28",
+          "^FO20,30",
+          "^FDTENIS NIKE^FS",
+          "^FO20,65",
+          "^FD123456^FS",
+          "^XZ",
         ].join("\n"),
       },
     ];
 
-    // Enviar para impressão
     await qz.print(config, zplData);
-
     statusEl.innerText = "Status: Etiqueta enviada com sucesso ✓";
   } catch (err) {
     statusEl.innerText = "Erro ao imprimir: " + err.message;
@@ -95,7 +118,7 @@ printBtn.addEventListener("click", async () => {
 });
 
 /**
- * DESCONECTAR (opcional)
+ * DESCONECTAR ao sair
  */
 window.addEventListener("beforeunload", async () => {
   if (qz.websocket.isActive()) {
