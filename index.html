@@ -2,22 +2,111 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Teste QZ Trayffff</title>
+    <title>Teste QZ Tray</title>
   </head>
   <body>
-    <div>
-      <p id="status">Desconectadoff</p>
-      <button id="connectBtn">Conectar QZ Tray</button>
-      <button id="printBtn" disabled>Imprimir Etiqueta</button>
-    </div>
+    <p id="status">Desconectado</p>
+    <button id="connectBtn">Conectar QZ Tray</button>
+    <button id="printBtn" disabled>Imprimir Etiqueta</button>
 
     <!-- QZ Tray -->
     <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
 
-    <!-- CRIPTO (OBRIGATÓRIO PARA ASSINAR) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.8.6/jsrsasign-all-min.js"></script>
+    <script>
+      const statusEl = document.getElementById("status");
+      const connectBtn = document.getElementById("connectBtn");
+      const printBtn = document.getElementById("printBtn");
 
-    <!-- SEU SCRIPT -->
-    <script src="script.js"></script>
+      printBtn.disabled = true;
+
+      /* =========================
+       CERTIFICATE (DIRECT MODE)
+       ========================= */
+      qz.security.setCertificatePromise(function (resolve, reject) {
+        resolve(
+          "-----BEGIN CERTIFICATE-----\n" +
+            "MIIECzCCAvOgAwIBAgIGAZtQmWp1MA0GCSqGSIb3DQEBCwUAMIGiMQswCQYDVQQG\n" +
+            "EwJVUzELMAkGA1UECAwCTlkxEjAQBgNVBAcMCUNhbmFzdG90YTEbMBkGA1UECgwS\n" +
+            "UVogSW5kdXN0cmllcywgTExDMRswGQYDVQQLDBJRWiBJbmR1c3RyaWVzLCBMTEMx\n" +
+            "HDAaBgkqhkiG9w0BCQEWDXN1cHBvcnRAcXouaW8xGjAYBgNVBAMMEVFaIFRyYXkg\n" +
+            "RGVtbyBDZXJ0MB4XDTI1MTIyMzEzNDMxMFoXDTQ1MTIyMzEzNDMxMFowgaIxCzAJ\n" +
+            "BgNVBAYTAlVTMQswCQYDVQQIDAJOWTESMBAGA1UEBwwJQ2FuYXN0b3RhMRswGQYD\n" +
+            "VQQKDBJRWiBJbmR1c3RyaWVzLCBMTEMxGzAZBgNVBAsMElFaIEluZHVzdHJpZXMs\n" +
+            "IExMQzEcMBoGCSqGSIb3DQEJARYNc3VwcG9ydEBxei5pbzEaMBgGA1UEAwwRUVog\n" +
+            "VHJheSBEZW1vIENlcnQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCf\n" +
+            "AaJdlLxlGgxJWPVcoCK1DQdhk2ksusmDRDgvglqdteFgs2gqmf5527FdiPR5Z9XH\n" +
+            "wyxa4NdAj1iau7OCMJhICgJzm30EqEqPgQyMDOAfbXHneER3yBXx1Z0R2qSz+J9R\n" +
+            "D+KgaPqi6u6uQuXTyuUh5wJtYZO0+If6mJSjYH6Vj7e2zSrA67js7UALAqLU7mkI\n" +
+            "YyOfu9IansNoQj3lRmqSwTptvYjbzd+Mt8CrmBMEeekLkVMvZTAuDcRTzD3GfvUc\n" +
+            "6VqSrpDsJSVV0x3tglq5MUWNxG4I6cGNhWJlkhyw6S8JRkqymMOD3hMxfNLaBCAP\n" +
+            "g6KzMUNOMxrSgRawXLIJAgMBAAGjRTBDMBIGA1UdEwEB/wQIMAYBAf8CAQEwDgYD\n" +
+            "VR0PAQH/BAQDAgEGMB0GA1UdDgQWBBR4DRQyE1WqL7H7i9UeF3hJ8DVL2jANBgkq\n" +
+            "hkiG9w0BAQsFAAOCAQEAcm2KuZHwuPjMmLxWonVeuPTUeqc8aYy35HuzikytRYNG\n" +
+            "TEmIYq7cMst8866jFJHKmfPq2Z5du5zAamlUrYkcafQwqyqqLLlcUTvuiwQ7HUFW\n" +
+            "FF/zeprG+xMMyVQRimalWN1Y3ObSGlfeWps1Jc+5AkrB9zUkw/tMbURhIIJiSvNK\n" +
+            "zLiB9VKFVCvDJl+y8ECDOIhjWRC97b9FjNKcVlVFHz3C0IInMz/NAp06zokKgkN1\n" +
+            "SBDfK47MUCw/9Ol3ZQyuvLikWsV9vSWs6FJgIRoFuiVQx3taIBKqPHiZgTH3KMrH\n" +
+            "vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==\n" +
+            "-----END CERTIFICATE-----\n"
+        );
+      });
+
+      /* =========================
+       SIGNATURE (DIRECT / UNSIGNED)
+       ========================= */
+      qz.security.setSignatureAlgorithm("SHA512");
+      qz.security.setSignaturePromise(function (toSign) {
+        return new Promise(function (resolve, reject) {
+          resolve(); // EXATAMENTE como na documentação
+        });
+      });
+
+      /* =========================
+       CONNECT
+       ========================= */
+      connectBtn.addEventListener("click", async () => {
+        try {
+          statusEl.innerText = "Conectando ao QZ Tray...";
+
+          await qz.websocket.connect({
+            usingSecure: true,
+            port: { secure: [8181] },
+          });
+
+          const version = await qz.api.getVersion();
+          statusEl.innerText = `✅ Conectado ao QZ Tray ${version}`;
+          printBtn.disabled = false;
+        } catch (err) {
+          statusEl.innerText = "❌ Erro ao conectar";
+          console.error(err);
+        }
+      });
+
+      /* =========================
+       PRINT (EPL – ARGOX)
+       ========================= */
+      printBtn.addEventListener("click", async () => {
+        try {
+          const printer = await qz.printers.find("Argox");
+
+          const config = qz.configs.create(printer, {
+            forceRaw: true,
+          });
+
+          const data = [
+            "N",
+            'A50,30,0,3,1,1,N,"TENIS NIKE"',
+            'A50,70,0,2,1,1,N,"123456"',
+            "P1",
+          ];
+
+          await qz.print(config, data);
+          statusEl.innerText = "✅ Etiqueta impressa!";
+        } catch (err) {
+          statusEl.innerText = "❌ Erro ao imprimir";
+          console.error(err);
+        }
+      });
+    </script>
   </body>
 </html>
