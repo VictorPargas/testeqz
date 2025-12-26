@@ -58,7 +58,7 @@
     <div class="card">
       <h2>Etiqueta PPLA</h2>
 
-      <p id="status">🔴 Desconectado</p>
+      <p id="status">🔴 DesconectadoN</p>
       <button id="connectBtn">Conectar QZ Tray</button>
 
       <label>Tipo de Montagem</label>
@@ -166,27 +166,25 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
         const config = qz.configs.create(printer, { forceRaw: true });
 
         const raw = `
-n
-M0800
-O1100
-V0
-f090
-D
-L
+\x02n
+\x02M0600
+\x02O0240
+\x02V0
+\x02f080
+\x01D
+\x02L
 
-121100001000020${tipo}
-121100001000520${marca}
+121100000150010${tipoMontagem}
+121100000150300${marca}
 
-121100001200020${codigo}
-121100001200300${modelo}
+121100000350010${codigoItem}
+121100000350300${modelo}
 
-1A420012060020${codigo}
+121100000550010COR ${cor}
+121100000550300TAM ${tamanho}
 
-121100001380300${cor}
-
-121100001520020TAM ${tamanho}
-121100001520300R$
-141100001520340${preco}
+121100000750300R$
+141100000750340${preco}
 
 Q0001
 E
