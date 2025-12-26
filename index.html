@@ -2,7 +2,7 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Etiqueta PPLA - QZ Tray</title>
+    <title>Impressão PPLA - QZ Tray</title>
 
     <style>
       body {
@@ -13,7 +13,7 @@
 
       .card {
         background: #fff;
-        max-width: 480px;
+        max-width: 450px;
         margin: auto;
         padding: 24px;
         border-radius: 8px;
@@ -27,13 +27,13 @@
 
       label {
         display: block;
-        margin-top: 10px;
+        margin-top: 12px;
         font-weight: bold;
       }
 
       input {
         width: 100%;
-        padding: 7px;
+        padding: 8px;
         margin-top: 4px;
         font-size: 14px;
       }
@@ -58,33 +58,26 @@
     <div class="card">
       <h2>Etiqueta PPLA</h2>
 
-      <p id="status">🔴 Desconectadoff</p>
+      <p id="status">🔴 Desconectadoqqq</p>
+
       <button id="connectBtn">Conectar QZ Tray</button>
 
-      <label>Tipo de Montagem</label>
-      <input id="tipoMontagem" placeholder="LIVRE-DURA-LIVRE" />
+      <label>Descrição</label>
+      <input id="descricao" placeholder="LIVRE-DURA-LIVRE REC" />
 
-      <label>Marca</label>
-      <input id="marca" placeholder="LACOSTE" />
+      <label>Código</label>
+      <input id="codigo" placeholder="135667" />
 
-      <label>Código do Item</label>
-      <input id="codigoItem" placeholder="135667" />
-
-      <label>Modelo</label>
-      <input id="modelo" placeholder="REC" />
-
-      <label>Cor</label>
-      <input id="cor" placeholder="002" />
-
-      <label>Tamanho da Armação</label>
+      <label>Tamanho</label>
       <input id="tamanho" placeholder="54" />
 
-      <label>Preço de Venda</label>
+      <label>Preço</label>
       <input id="preco" placeholder="783,00" />
 
       <button id="printBtn" disabled>Imprimir Etiqueta</button>
     </div>
 
+    <!-- QZ Tray -->
     <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
 
     <script>
@@ -92,14 +85,14 @@
       const connectBtn = document.getElementById("connectBtn");
       const printBtn = document.getElementById("printBtn");
 
-      const tipoMontagemEl = document.getElementById("tipoMontagem");
-      const marcaEl = document.getElementById("marca");
-      const codigoItemEl = document.getElementById("codigoItem");
-      const modeloEl = document.getElementById("modelo");
-      const corEl = document.getElementById("cor");
+      const descricaoEl = document.getElementById("descricao");
+      const codigoEl = document.getElementById("codigo");
       const tamanhoEl = document.getElementById("tamanho");
       const precoEl = document.getElementById("preco");
 
+      /* =========================
+         CERTIFICATE
+      ========================= */
       qz.security.setCertificatePromise(function (resolve) {
         resolve(`-----BEGIN CERTIFICATE-----
 MIIECzCCAvOgAwIBAgIGAZtQmWp1MA0GCSqGSIb3DQEBCwUAMIGiMQswCQYDVQQG
@@ -130,7 +123,9 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
       qz.security.setSignatureAlgorithm("SHA512");
       qz.security.setSignaturePromise(() => (resolve) => resolve());
 
-      /* CONNECT */
+      /* =========================
+         CONNECT
+      ========================= */
       connectBtn.onclick = async () => {
         try {
           statusEl.innerText = "🟡 Conectando...";
@@ -146,18 +141,17 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
         }
       };
 
-      /* PRINT */
+      /* =========================
+         PRINT (PPLA RAW)
+      ========================= */
       printBtn.onclick = async () => {
-        const tipo = tipoMontagemEl.value;
-        const marca = marcaEl.value;
-        const codigo = codigoItemEl.value;
-        const modelo = modeloEl.value;
-        const cor = corEl.value;
-        const tamanho = tamanhoEl.value;
-        const preco = precoEl.value;
+        const desc = descricaoEl.value.trim();
+        const cod = codigoEl.value.trim();
+        const tam = tamanhoEl.value.trim();
+        const val = precoEl.value.trim();
 
-        if (!tipo || !marca || !codigo || !preco) {
-          alert("Preencha todos os campos obrigatórios");
+        if (!desc || !cod || !val) {
+          alert("Preencha todos os campos");
           return;
         }
 
@@ -173,22 +167,15 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
 D
 L
 
-121100002020010${tipo}
-121100002020260${marca}
+121100002020010${desc}
+121100002050010${cod}
 
-121100002050010${codigo}
-121100002050160R$
-121100002050260${modelo}
+1A420020060010${cod}
 
-1A420020060010${codigo}
+121100002120180TAM ${tam}
 
-121100002120260${cor}
-
-121100002150010PREÇO
-121100002150160R$
-141100002170160${preco}
-
-121100002170010TAM ${tamanho}
+121100002140300R$
+141100002160300${val}
 
 Q0001
 E
