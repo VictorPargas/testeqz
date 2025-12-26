@@ -2,7 +2,7 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Impressão PPLA - QZ Tray</title>
+    <title>Etiqueta PPLA - QZ Tray</title>
 
     <style>
       body {
@@ -13,7 +13,7 @@
 
       .card {
         background: #fff;
-        max-width: 450px;
+        max-width: 480px;
         margin: auto;
         padding: 24px;
         border-radius: 8px;
@@ -27,13 +27,13 @@
 
       label {
         display: block;
-        margin-top: 12px;
+        margin-top: 10px;
         font-weight: bold;
       }
 
       input {
         width: 100%;
-        padding: 8px;
+        padding: 7px;
         margin-top: 4px;
         font-size: 14px;
       }
@@ -53,30 +53,38 @@
       }
     </style>
   </head>
+
   <body>
     <div class="card">
       <h2>Etiqueta PPLA</h2>
 
-      <p id="status">🔴 Desconectado</p>
-
+      <p id="status">🔴 Desconectadoff</p>
       <button id="connectBtn">Conectar QZ Tray</button>
 
-      <label>Descrição</label>
-      <input id="descricao" placeholder="TENIS NIKE" />
+      <label>Tipo de Montagem</label>
+      <input id="tipoMontagem" placeholder="LIVRE-DURA-LIVRE" />
 
-      <label>Código</label>
-      <input id="codigo" placeholder="123456" />
+      <label>Marca</label>
+      <input id="marca" placeholder="LACOSTE" />
 
-      <label>Tamanho</label>
-      <input id="tamanho" placeholder="GG" />
+      <label>Código do Item</label>
+      <input id="codigoItem" placeholder="135667" />
 
-      <label>Preço</label>
-      <input id="preco" placeholder="150,50" />
+      <label>Modelo</label>
+      <input id="modelo" placeholder="REC" />
+
+      <label>Cor</label>
+      <input id="cor" placeholder="002" />
+
+      <label>Tamanho da Armação</label>
+      <input id="tamanho" placeholder="54" />
+
+      <label>Preço de Venda</label>
+      <input id="preco" placeholder="783,00" />
 
       <button id="printBtn" disabled>Imprimir Etiqueta</button>
     </div>
 
-    <!-- QZ Tray -->
     <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
 
     <script>
@@ -84,14 +92,14 @@
       const connectBtn = document.getElementById("connectBtn");
       const printBtn = document.getElementById("printBtn");
 
-      const descricaoEl = document.getElementById("descricao");
-      const codigoEl = document.getElementById("codigo");
+      const tipoMontagemEl = document.getElementById("tipoMontagem");
+      const marcaEl = document.getElementById("marca");
+      const codigoItemEl = document.getElementById("codigoItem");
+      const modeloEl = document.getElementById("modelo");
+      const corEl = document.getElementById("cor");
       const tamanhoEl = document.getElementById("tamanho");
       const precoEl = document.getElementById("preco");
 
-      /* =========================
-     CERTIFICATE (COMPLETO)
-     ========================= */
       qz.security.setCertificatePromise(function (resolve) {
         resolve(`-----BEGIN CERTIFICATE-----
 MIIECzCCAvOgAwIBAgIGAZtQmWp1MA0GCSqGSIb3DQEBCwUAMIGiMQswCQYDVQQG
@@ -119,15 +127,10 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
 -----END CERTIFICATE-----`);
       });
 
-      /* =========================
-     SIGNATURE (DIRECT MODE)
-     ========================= */
       qz.security.setSignatureAlgorithm("SHA512");
       qz.security.setSignaturePromise(() => (resolve) => resolve());
 
-      /* =========================
-     CONNECT
-     ========================= */
+      /* CONNECT */
       connectBtn.onclick = async () => {
         try {
           statusEl.innerText = "🟡 Conectando...";
@@ -143,17 +146,18 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
         }
       };
 
-      /* =========================
-     PRINT (PPLA RAW)
-     ========================= */
+      /* PRINT */
       printBtn.onclick = async () => {
-        const desc = descricaoEl.value.trim();
-        const cod = codigoEl.value.trim();
-        const tam = tamanhoEl.value.trim();
-        const val = precoEl.value.trim();
+        const tipo = tipoMontagemEl.value;
+        const marca = marcaEl.value;
+        const codigo = codigoItemEl.value;
+        const modelo = modeloEl.value;
+        const cor = corEl.value;
+        const tamanho = tamanhoEl.value;
+        const preco = precoEl.value;
 
-        if (!desc || !cod) {
-          alert("Preencha descrição e código");
+        if (!tipo || !marca || !codigo || !preco) {
+          alert("Preencha todos os campos obrigatórios");
           return;
         }
 
@@ -165,15 +169,27 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
 M0739
 O0220
 V0
-f220
+f100
 D
 L
-171100002130050${desc}
-1g63032014400532${cod}
-171100002450010TAM:
-171100002430040${tam}
-171100000080010R$
-171100000080088${val}
+
+121100002020010${tipo}
+121100002020260${marca}
+
+121100002050010${codigo}
+121100002050160R$
+121100002050260${modelo}
+
+1A420020060010${codigo}
+
+121100002120260${cor}
+
+121100002150010PREÇO
+121100002150160R$
+141100002170160${preco}
+
+121100002170010TAM ${tamanho}
+
 Q0001
 E
 `;
