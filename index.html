@@ -165,28 +165,19 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
         const printer = await qz.printers.find("Argox");
         const config = qz.configs.create(printer, { forceRaw: true });
 
-        // Comando PPLB para Argox
-        const raw = `SIZE 4,2.5
-GAP 0.12,0
-DIRECTION 0
-DENSITY 8
-CLS
-
-TEXT 40,20,"3",0,1,1,"${tipo}"
-TEXT 220,20,"3",0,1,1,"${marca} ${modelo}"
-
-TEXT 40,80,"3",0,1,1,"${codigo}"
-TEXT 220,80,"3",0,1,1,"R$ ${preco}"
-
-TEXT 40,140,"3",0,1,1,"${cor}"
-
-TEXT 40,200,"3",0,1,1,"CODIGO BARRAS"
-BARCODE 180,200,"128",60,1,0,2,2,"${codigo}"
-
-TEXT 40,280,"3",0,1,1,"${tamanho}"
-TEXT 120,280,"3",0,1,1,"R$ ${preco}"
-
-PRINT 1
+        const raw = `\x02n
+\x02M0800
+\x02L
+D11
+121100000050030${tipo}
+121100000450030${marca} ${modelo}
+121100000050120${codigo}
+121100000450120R$ ${preco}
+121100000050210${cor}
+121100000050300${tamanho}
+121100000450300R$ ${preco}
+Q0001
+E
 `;
 
         await qz.print(config, [raw]);
