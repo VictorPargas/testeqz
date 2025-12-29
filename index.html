@@ -166,16 +166,16 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
         const config = qz.configs.create(printer, { forceRaw: true });
 
         const raw = `\x02n
-\x02M0800
+\x02M1200
 \x02L
 D11
-121100000050030${tipo}
-121100000450030${marca} ${modelo}
-121100000050120${codigo}
-121100000450120R$ ${preco}
-121100000050210${cor}
-121100000050300${tamanho}
-121100000450300R$ ${preco}
+191100001400030${tipo}
+191100001400150${codigo}
+1911000014001801B${codigo}
+191100005000030${marca}
+191100005000090${modelo}
+191100005000150${cor}
+191100005000210${tamanho} R$ ${preco}
 Q0001
 E
 `;
