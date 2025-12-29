@@ -2,7 +2,7 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Etiqueta PPLA - Argox 203 DPI</title>
+    <title>Etiqueta PPLB - Argox 203 DPI</title>
 
     <style>
       body {
@@ -56,9 +56,9 @@
 
   <body>
     <div class="card">
-      <h2>Etiqueta PPLA</h2>
+      <h2>Etiqueta PPLB</h2>
 
-      <p id="status">🔴 Desconegfd</p>
+      <p id="status">🔴 Desconectado</p>
       <button id="connectBtn">Conectar QZ Tray</button>
 
       <label>Tipo de Montagem</label>
@@ -149,12 +149,12 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
 
       /* PRINT */
       printBtn.onclick = async () => {
-        const tipo = tipoMontagemEl.value || "";
-        const marca = marcaEl.value || "";
+        const tipo = tipoMontagemEl.value || "LIVRE-DURA-LIVRE";
+        const marca = marcaEl.value || "LACOSTE";
         const codigo = codigoItemEl.value || "";
-        const modelo = modeloEl.value || "";
-        const cor = corEl.value || "";
-        const tamanho = tamanhoEl.value || "";
+        const modelo = modeloEl.value || "REC";
+        const cor = corEl.value || "002";
+        const tamanho = tamanhoEl.value || "54";
         const preco = precoEl.value || "";
 
         if (!codigo || !preco) {
@@ -165,25 +165,36 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
         const printer = await qz.printers.find("Argox");
         const config = qz.configs.create(printer, { forceRaw: true });
 
-        const raw =
-          "\x02n\n" +
-          "\x02M0600\n" +
-          "\x02V0\n" +
-          "\x01D\n" +
-          "\x02L\n" +
-          `021000000030020${tipo}\n` +
-          `021000000030040${marca} ${modelo}\n` +
-          `021000000030065${codigo}\n` +
-          `021000000200065R$ ${preco}\n` +
-          `021000000030090${cor}\n` +
-          `021000000030115BARRAS\n` +
-          `021000000160115${preco}\n` +
-          `021000000280115${tamanho}\n` +
-          "Q1\n" +
-          "E\n";
+        // Comando PPLB para Argox
+        const raw = `SIZE 4,2.5
+GAP 0.12,0
+DIRECTION 0
+DENSITY 8
+CLS
+
+TEXT 40,20,"3",0,1,1,"${tipo}"
+TEXT 220,20,"3",0,1,1,"${marca} ${modelo}"
+
+TEXT 40,80,"3",0,1,1,"${codigo}"
+TEXT 220,80,"3",0,1,1,"R$ ${preco}"
+
+TEXT 40,140,"3",0,1,1,"${cor}"
+
+TEXT 40,200,"3",0,1,1,"CODIGO BARRAS"
+BARCODE 180,200,"128",60,1,0,2,2,"${codigo}"
+
+TEXT 40,280,"3",0,1,1,"${tamanho}"
+TEXT 120,280,"3",0,1,1,"R$ ${preco}"
+
+PRINT 1
+`;
 
         await qz.print(config, [raw]);
         statusEl.innerText = "✅ Etiqueta impressa!";
+
+        setTimeout(() => {
+          statusEl.innerText = "🟢 Conectado ao QZ Tray";
+        }, 2000);
       };
     </script>
   </body>
