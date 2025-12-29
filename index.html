@@ -165,30 +165,22 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
         const printer = await qz.printers.find("Argox");
         const config = qz.configs.create(printer, { forceRaw: true });
 
-        const raw = `
-\x02n
-\x02M0600
-\x02O0240
-\x02V0
-\x02f015
-\x01D
-\x02L
-
-021000000040020LIVRE
-021000000220020LACOSTE REC
-
-021000000040060135667
-021000000220060R$ 2297
-
-021000000040100002
-
-021000000040140BARRAS
-021000000180140783,00
-02100000030014054 R$ 783,00
-
-Q0001
-E
-`;
+        const raw =
+          "\x02n\n" +
+          "\x02M0600\n" +
+          "\x02V0\n" +
+          "\x01D\n" +
+          "\x02L\n" +
+          `021000000030020${tipo}\n` +
+          `021000000030040${marca} ${modelo}\n` +
+          `021000000030065${codigo}\n` +
+          `021000000200065R$ ${preco}\n` +
+          `021000000030090${cor}\n` +
+          `021000000030115BARRAS\n` +
+          `021000000160115${preco}\n` +
+          `021000000280115${tamanho}\n` +
+          "Q1\n" +
+          "E\n";
 
         await qz.print(config, [raw]);
         statusEl.innerText = "✅ Etiqueta impressa!";
