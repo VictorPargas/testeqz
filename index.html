@@ -166,19 +166,19 @@ vi0RmfMdqjovIJRYfGfLKGHH3mmvkG2DyyYjsRE+Iw==
         const config = qz.configs.create(printer, { forceRaw: true });
 
         const raw = `\x02n
-\x02M0800
-\x02L
-D11
-121100000050030${tipo}
-121100000450030${marca} ${modelo}
-121100000050100${codigo}
-121100000450100R$ ${preco}
-121100000050210${cor}
-1211000000502100${tamanho}
-121100000450210R$ ${preco}
-Q0001
-E
-`;
+                      \x02M0800
+                      \x02L
+                      D11
+                      121100000050030${tipo}
+                      121100000450030${marca} ${modelo}
+                      121100000050100${codigo}
+                      121100000450100R$ ${preco}
+                      121100000050210${cor}
+                      1211000000502100${tamanho}
+                      121100000450210R$ ${preco}
+                      Q0001
+                      E
+                      `;
 
         await qz.print(config, [raw]);
         statusEl.innerText = "✅ Etiqueta impressa!";
